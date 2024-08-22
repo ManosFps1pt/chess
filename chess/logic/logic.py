@@ -10,15 +10,15 @@ directory = f"{os.getcwd()}\\chess_GUI\\pieces"
 screen = pygame.display.set_mode((800, 800))
 
 
-def keyfromvalue(dictionary, value):
+def keyFromValue(dictionary, value):
     return list(dictionary.keys())[list(dictionary.values()).index(value)]
 
 
 class ChessLogic(GlobalChess):
-    def availablepos(self, pieceShell) -> tuple:
+    def availablePos(self, shellPiece) -> tuple:
         # H1
-        colum = abs(int(pieceShell[1]) - 8)  # |1 - 8| = 7
-        row = self.letters[pieceShell[0]]  # 7
+        colum = abs(int(shellPiece[1]) - 8)  # |1 - 8| = 7
+        row = self.letters[shellPiece[0]]  # 7
         # print(f"row: {row}, colum: {colum}")
         piece = self.piecespos[colum][row][1]
         color = self.piecespos[colum][row][0]
@@ -27,7 +27,7 @@ class ChessLogic(GlobalChess):
         if piece == 0:
             raise ValueError("not a piece")
 
-        def vertical_horizontal(self, pieceshell):
+        def vertical_horizontal(self, pieceShell):
             print("---------| up |----------------------------------------------------------------")
             i = [row, colum]
             o = 0
@@ -38,13 +38,13 @@ class ChessLogic(GlobalChess):
                     break
                 o += 1
                 i[1] -= 1
-                cheching = abs(i[1] - 8)
+                checking = abs(i[1] - 8)
                 # print("appending")
                 if self.piecespos[i[1]][i[0]] != 0 and self.piecespos[i[1]][i[0]][0] == color:
                     break
                 elif self.piecespos[i[1]][i[0]] != 0 and self.piecespos[i[1]][i[0]][0] != color:
                     brk = True
-                returning.append(f"{keyfromvalue(self.letters, i[0])}{cheching}")
+                returning.append(f"{keyFromValue(self.letters, i[0])}{checking}")
                 print(f"color: {color}, piece: {self.piecespos[i[1]][i[0]]}")
 
             print("---------| down |----------------------------------------------------------------")
@@ -56,12 +56,12 @@ class ChessLogic(GlobalChess):
                 i[1] += 1
                 print(self.piecespos[i[1]][i[0]])
                 if self.piecespos[i[1]][i[0]] != 0 and self.piecespos[i[1]][i[0]][0] == color:
-                    print("break", cheching)
+                    print("break", checking)
                     break
                 elif self.piecespos[i[1]][i[0]] != 0 and self.piecespos[i[1]][i[0]][0] != color:
                     brk = True
-                cheching = abs(i[1] - 8)
-                returning.append(f"{keyfromvalue(self.letters, i[0])}{cheching}")
+                checking = abs(i[1] - 8)
+                returning.append(f"{keyFromValue(self.letters, i[0])}{checking}")
 
             print("---------------| left |----------------------------------------------------------------")
             i = [row, colum]
@@ -74,22 +74,22 @@ class ChessLogic(GlobalChess):
                 print(f"i: {i[0]}, {i[1]}")
                 print("self.piecepos[i[1]][i[0]]", self.piecespos[i[1]][i[0]])
                 if self.piecespos[i[1]][i[0]] != 0 and self.piecespos[i[1]][i[0]][0] == color:
-                    print("break", cheching)
+                    print("break", checking)
                     break
                 elif self.piecespos[i[1]][i[0]] != 0 and self.piecespos[i[1]][i[0]][0] != color:
                     brk = True
-                cheching = i[0]  # abs(i[0] - 8)
-                print(f"{keyfromvalue(self.letters, i[0])}{cheching}")
-                returning.append(f"{keyfromvalue(self.letters, i[0])}{cheching}")
+                checking = i[0]  # abs(i[0] - 8)
+                print(f"{keyFromValue(self.letters, i[0])}{checking}")
+                returning.append(f"{keyFromValue(self.letters, i[0])}{checking}")
 
             print("-------------------| result |----------------------------------------------------------------")
             return returning
 
         if piece == "r":
-            return vertical_horizontal(self, pieceShell)
+            return vertical_horizontal(self, shellPiece)
 
 
-"""---------| test and how it works |----------------------------------------------------------------------------------"""
+"""---------| test and how it works |--------------------------------------------------------------------------------"""
 if __name__ == "__main__":
     board = GlobalChess((500, 500), ("#cccccc", "#333333"), (100, 100), {"color": "#0000aa", "thickness": 10}, 5, directory)
     board.pieces_setup()
