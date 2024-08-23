@@ -22,6 +22,7 @@ while run:
     board.draw_board()
     board.draw_pieces()
 
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
