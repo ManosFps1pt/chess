@@ -12,7 +12,6 @@ class Board:
         self.outline_color = "#002200"
         self.outline_thickness = 5
 
-
         self.__square_size: tuple[int, int] = self.__size[0] // 8, self.__size[1] // 8
         self.index_row_dict: dict = {
             0: "A",
@@ -34,6 +33,9 @@ class Board:
         self.__size = value
         self.__square_size = self.__size[0] // 8, self.__size[1] // 8
 
+    @property
+    def square_size(self):
+        return self.__square_size
 
     @staticmethod
     def key_from_value(dictionary: dict, value: str | int):
@@ -98,14 +100,16 @@ class Board:
                 row += 1
             x = (row * self.__square_size[0]) + self.top_left[0]
             y = (colum * self.__square_size[1]) + self.top_left[1]
-            pygame.draw.rect(self.screen, self.colors[1], pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
+            pygame.draw.rect(self.screen, self.colors[1],
+                             pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
 
         # draw letters and numbers
         for i in range(8):
             row_letter = self.index_to_row(i)
             font = pygame.font.SysFont("Calibri", 30)
             text_surface = font.render(row_letter, True, "#ffffff")
-            pos = self.top_left[0] + (i * self.__square_size[0]), self.top_left[1] + self.__size[1] + round(self.__square_size[1] * .1)
+            pos = self.top_left[0] + (i * self.__square_size[0]), self.top_left[1] + self.__size[1] + round(
+                self.__square_size[1] * .1)
             self.screen.blit(text_surface, pos)
 
         for i in range(8):
@@ -124,8 +128,9 @@ class Board:
         return self.top_left[0] + (self.__square_size[0] * row), self.top_left[1] + (self.__square_size[1] * colum)
 
     def pos_to_square(self, pos: tuple[int, int]) -> tuple[int, int]:
-        row = int(pos[0] / self.__square_size[0])
-        colum = int(pos[1] / self.__square_size[1])
+        coords_on_board = (pos[0] - self.top_left[0], pos[1] - self.top_left[1])
+        row = int(coords_on_board[0] // self.__square_size[0]) + 1
+        colum = int(coords_on_board[1] // self.__square_size[1]) + 1
         return row, colum
 
     def get_square_clicked(self) -> tuple[tuple[int, int], tuple[int, int]] | None:
