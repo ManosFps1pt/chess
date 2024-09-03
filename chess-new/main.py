@@ -4,6 +4,7 @@ from constants import *
 
 pygame.init()
 
+
 while run:
     screen.fill("#000000")
     board.draw_board()
@@ -16,6 +17,6 @@ while run:
 
     pygame.display.update()
     clock.tick()
-    pygame.display.set_caption(f"board module implementation. FPS: {int(clock.get_fps())}")
+    pygame.display.set_caption(f"board module implementation - Chess. FPS: {int(clock.get_fps())}")
 
 pygame.quit()
