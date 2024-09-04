@@ -40,4 +40,6 @@ class Chess(Board):
             image = white_images[piece.index(piece)]
             self.screen.blit(image, pos)
 
+    def pawn_available(self, pos: tuple[int, int], is_white: bool):
+        ...
 
