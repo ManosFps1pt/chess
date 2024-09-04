@@ -11,7 +11,7 @@ class Board:
         self.top_left: tuple[int, int] = 100, 100
         self.outline_color = "#002200"
         self.outline_thickness = 5
-
+        self.__squares_to_mark: set[tuple[int, int]] = set()
         self.__square_size: tuple[int, int] = self.__size[0] // 8, self.__size[1] // 8
         self.index_row_dict: dict = {
             0: "A",
@@ -23,6 +23,17 @@ class Board:
             6: "G",
             7: "H"
         }
+
+    @property
+    def squares_to_mark(self):
+        return self.__squares_to_mark
+
+    def clear_marked_squares(self) -> None:
+        self.__squares_to_mark = set()
+
+    def add_square_to_mark(self, square: tuple[int, int]) -> None:
+        if square not in self.__squares_to_mark and square is not None:  # Check if square is not already marked
+            self.__squares_to_mark.add(square)
 
     @property
     def size(self):
@@ -103,7 +114,7 @@ class Board:
             pygame.draw.rect(self.screen, self.colors[1],
                              pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
 
-        # draw letters and numbers
+        # draw letters
         for i in range(8):
             row_letter = self.index_to_row(i)
             font = pygame.font.SysFont("Calibri", 30)
@@ -112,10 +123,11 @@ class Board:
                 self.__square_size[1] * .1)
             self.screen.blit(text_surface, pos)
 
+        # draw numbers
         for i in range(8):
             font = pygame.font.SysFont("Calibri", 30)
             text_surface = font.render(str(self.invert(i)), True, "#ffffff")
-            pos = self.top_left[0] - 30, (self.invert(i) * self.__square_size[1]) + 30
+            pos = self.top_left[0] - 30, (i * self.__square_size[1]) + 30 + self.__square_size[1]
             self.screen.blit(text_surface, pos)
 
     @staticmethod
@@ -133,18 +145,28 @@ class Board:
         colum = int(coords_on_board[1] // self.__square_size[1]) + 1
         return row, colum
 
-    def get_square_clicked(self) -> tuple[tuple[int, int], tuple[int, int]] | None:
+    def get_square_clicked(self) -> tuple[int, int] | None:
         clicked: bool = pygame.mouse.get_pressed()[0]
         if clicked:
             pos = pygame.mouse.get_pos()
             if self.top_left[0] < pos[0] < self.top_left[0] + self.__size[0] and self.top_left[1] < pos[1] < \
                     self.top_left[1] + self.__size[1]:
                 square = self.pos_to_square(pos)
-                return (square[0] - 1, square[1] - 1), pos
-            else:
-                return None
-        else:
-            return None
+                return square[0] - 1, square[1] - 1
+        return None
+
+    def mark_square(self, square: tuple[int, int]) -> None:
+        pos = self.square_to_pos(square)
+        pygame.draw.circle(
+            self.screen,
+            "#ff0000",
+            (pos[0] + self.__square_size[0] // 2, pos[1] + self.__square_size[1] // 2),
+            10
+        )
+
+    def mark_squares(self) -> None:
+        for square in self.__squares_to_mark:
+            self.mark_square(square)
 
 
 if __name__ == "__main__":
