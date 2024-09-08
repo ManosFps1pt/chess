@@ -13,7 +13,7 @@ class Board:
         self.outline_thickness = 5
         self.__squares_to_mark: set[tuple[int, int]] = set()
         self.__square_size: tuple[int, int] = self.__size[0] // 8, self.__size[1] // 8
-        self.index_row_dict: dict = {
+        self.index_row_dict: dict[int:str] = {
             0: "A",
             1: "B",
             2: "C",
@@ -23,9 +23,22 @@ class Board:
             6: "G",
             7: "H"
         }
+        self.__board_inverted: bool = False
 
     @property
-    def squares_to_mark(self):
+    def board_inverted(self):
+        return self.__board_inverted
+
+    @board_inverted.setter
+    def board_inverted(self, val: bool):
+        if type(val) == type(bool):
+            self.__board_inverted = val
+
+    def invert_board(self):
+        self.__board_inverted ^= True # xor boolean operation : 0, 0 -> 0 | 0, 1 -> 1 | 1, 0 -> 1 | 1, 1 -> 0
+
+    @property
+    def squares_to_mark(self) -> set[tuple[int, int]]:
         return self.__squares_to_mark
 
     def clear_marked_squares(self) -> None:
@@ -36,20 +49,20 @@ class Board:
             self.__squares_to_mark.add(square)
 
     @property
-    def size(self):
+    def size(self) -> tuple[int, int]:
         return self.__size
 
     @size.setter
-    def size(self, value: tuple[int, int]):
+    def size(self, value: tuple[int, int]) -> None:
         self.__size = value
         self.__square_size = self.__size[0] // 8, self.__size[1] // 8
 
     @property
-    def square_size(self):
+    def square_size(self) -> tuple[int, int]:
         return self.__square_size
 
     @staticmethod
-    def key_from_value(dictionary: dict, value: str | int):
+    def key_from_value(dictionary: dict, value: object):
         return list(dictionary.keys())[list(dictionary.values()).index(value)]
 
     def index_to_row(self, x: int) -> str:
@@ -92,35 +105,63 @@ class Board:
         )
 
         # color a (white)
-        pygame.draw.rect(
-            self.screen,
-            self.colors[0],
-            pygame.Rect(
-                self.top_left[0],
-                self.top_left[1],
-                self.__size[0],
-                self.__size[1]
+        if self.__board_inverted:
+            pygame.draw.rect(
+                self.screen,
+                self.colors[1],
+                pygame.Rect(
+                    self.top_left[0],
+                    self.top_left[1],
+                    self.__size[0],
+                    self.__size[1]
+                )
             )
-        )
+        else:
+            pygame.draw.rect(
+                self.screen,
+                self.colors[0],
+                pygame.Rect(
+                    self.top_left[0],
+                    self.top_left[1],
+                    self.__size[0],
+                    self.__size[1]
+                )
+            )
 
         # color b (black)
-        for i in range(32):
-            colum = i // 4
-            row = (i % 4) * 2
-            if colum % 2 == 0:
-                row += 1
-            x = (row * self.__square_size[0]) + self.top_left[0]
-            y = (colum * self.__square_size[1]) + self.top_left[1]
-            pygame.draw.rect(self.screen, self.colors[1],
-                             pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
+        if self.__board_inverted:
+            for i in range(32):
+                colum = i // 4
+                row = (i % 4) * 2
+                if colum % 2 == 0:
+                    row += 1
+                x = (row * self.__square_size[0]) + self.top_left[0]
+                y = (colum * self.__square_size[1]) + self.top_left[1]
+                pygame.draw.rect(self.screen, self.colors[0],
+                                 pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
+
+        else:
+            for i in range(32):
+                colum = i // 4
+                row = (i % 4) * 2
+                if colum % 2 == 0:
+                    row += 1
+                x = (row * self.__square_size[0]) + self.top_left[0]
+                y = (colum * self.__square_size[1]) + self.top_left[1]
+                pygame.draw.rect(self.screen, self.colors[1],
+                                 pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
+
 
         # draw letters
         for i in range(8):
             row_letter = self.index_to_row(i)
             font = pygame.font.SysFont("Calibri", 30)
             text_surface = font.render(row_letter, True, "#ffffff")
-            pos = self.top_left[0] + (i * self.__square_size[0]), self.top_left[1] + self.__size[1] + round(
-                self.__square_size[1] * .1)
+            pos = \
+            (
+                self.top_left[0] + (i * self.__square_size[0]),
+                self.top_left[1] + self.__size[1] + round(self.__square_size[1] * .1)
+            )
             self.screen.blit(text_surface, pos)
 
         # draw numbers
@@ -131,18 +172,27 @@ class Board:
             self.screen.blit(text_surface, pos)
 
     @staticmethod
-    def invert(i: int):
+    def invert(i: int) -> int:
         return abs(8 - i)
 
-    def square_to_pos(self, square_pos: tuple[int, int]):
-        row: int = square_pos[0]
-        colum: int = square_pos[1]
-        return self.top_left[0] + (self.__square_size[0] * row), self.top_left[1] + (self.__square_size[1] * colum)
+    def square_to_pos(self, square_pos: tuple[int, int]) -> tuple[int, int]:
+        if self.__board_inverted:
+            row: int = self.invert(square_pos[0])
+            colum: int = self.invert(square_pos[1])
+            return self.top_left[0] + (self.__square_size[0] * row) - self.__square_size[0], (self.top_left[1] + (self.__square_size[1] * colum)) - self.__square_size[1]
+        else:
+            row: int = square_pos[0]
+            colum: int = square_pos[1]
+            return self.top_left[0] + (self.__square_size[0] * row), self.top_left[1] + (self.__square_size[1] * colum)
 
     def pos_to_square(self, pos: tuple[int, int]) -> tuple[int, int]:
-        coords_on_board = (pos[0] - self.top_left[0], pos[1] - self.top_left[1])
-        row = int(coords_on_board[0] // self.__square_size[0]) + 1
-        colum = int(coords_on_board[1] // self.__square_size[1]) + 1
+        cords_on_board = (pos[0] - self.top_left[0], pos[1] - self.top_left[1])
+        if self.__board_inverted:
+            row = self.invert(int(cords_on_board[0] // self.__square_size[0]))
+            colum = self.invert(int(cords_on_board[1] // self.__square_size[1]))
+        else:
+            row = int(cords_on_board[0] // self.__square_size[0]) + 1
+            colum = int(cords_on_board[1] // self.__square_size[1]) + 1
         return row, colum
 
     def get_square_clicked(self) -> tuple[int, int] | None:
@@ -172,7 +222,8 @@ class Board:
 if __name__ == "__main__":
     display = pygame.display.set_mode((1_000, 1_000))
     clock = pygame.time.Clock()
-    gui = Board(display)
+    board = Board(display)
+    board.__board_inverted = True
     run = True
     while run:
         for event in pygame.event.get():
@@ -180,12 +231,12 @@ if __name__ == "__main__":
                 print("quit")
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(gui.get_square_clicked())
+                print(board.get_square_clicked())
 
         pygame.display.set_caption(f"fps: {int(clock.get_fps())}")
 
         display.fill("#000000")
-        gui.draw_board()
+        board.draw_board()
 
         pygame.display.update()
         clock.tick()

@@ -46,31 +46,6 @@ class Chess(Board):
             image = black_images[piece]
             self.screen.blit(image, pos)
 
-    def pawn_available(self, pos: tuple[int, int], is_white: bool):
-        moves_list = []
-        if is_white:
-            friendly_list = self.white_pos
-            enemy_list = self.black_pos
-            if (pos[0], pos[1] + 1) not in friendly_list and (pos[0], pos[1] + 1) not in enemy_list and pos[1] <= 6:
-                moves_list.append((pos[0], pos[1] + 1))
-                if (pos[0], pos[1] + 2) not in friendly_list and (pos[0], pos[1] + 2) not in enemy_list and pos[1] == 1:
-                    moves_list.append((pos[0], pos[1] + 2))
-            if (pos[0] + 1, pos[1] + 1) in enemy_list:
-                moves_list.append((pos[0] + 1, pos[1] + 1))
-            if (pos[0] - 1, pos[1] + 1) in enemy_list:
-                moves_list.append((pos[0] - 1, pos[1] + 1))
-        else:
-            friendly_list = self.black_pos
-            enemy_list = self.white_pos
-            if (pos[0], pos[1] - 1) not in friendly_list and (pos[0], pos[1] - 1) not in enemy_list and pos[1] >= 1:
-                moves_list.append((pos[0], pos[1] - 1))
-                if (pos[0], pos[1] - 2) not in friendly_list and (pos[0], pos[1] - 2) not in enemy_list and pos[1] == 6:
-                    moves_list.append((pos[0], pos[1] - 2))
-            if (pos[0] + 1, pos[1] - 1) in enemy_list:
-                moves_list.append((pos[0] + 1, pos[1] - 1))
-            if (pos[0] - 1, pos[1] - 1) in enemy_list:
-                moves_list.append((pos[0] - 1, pos[1] - 1))
-        return moves_list
 
 
 if __name__ == "__main__":
@@ -82,12 +57,16 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 run &= False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(chess.get_square_clicked())
+                square = chess.get_square_clicked()
+                print(square)
+                chess.add_square_to_mark(square)
+                chess.invert_board()
 
         pygame.display.set_caption(f"fps: {int(clock.get_fps())}")
 
         screen.fill("#000000")
         chess.draw_board()
         chess.draw_pieces()
+        chess.mark_squares()
         pygame.display.update()
         clock.tick()
