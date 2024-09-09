@@ -34,7 +34,7 @@ class Board:
         if type(val) == type(bool):
             self.__board_inverted = val
 
-    def invert_board(self):
+    def flip_board(self):
         self.__board_inverted ^= True # xor boolean operation : 0, 0 -> 0 | 0, 1 -> 1 | 1, 0 -> 1 | 1, 1 -> 0
 
     @property
@@ -44,9 +44,9 @@ class Board:
     def clear_marked_squares(self) -> None:
         self.__squares_to_mark = set()
 
-    def add_square_to_mark(self, square: tuple[int, int]) -> None:
-        if square not in self.__squares_to_mark and square is not None:  # Check if square is not already marked
-            self.__squares_to_mark.add(square)
+    def add_squares_to_mark(self, *squares: tuple[int, int]) -> None:
+        for i in squares:
+            self.__squares_to_mark.add(i)
 
     @property
     def size(self) -> tuple[int, int]:
