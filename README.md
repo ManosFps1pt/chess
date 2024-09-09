@@ -1,2 +1,2 @@
 # chess
-This is a developing project; it is a chess game whriten in python using the pygame module. In the future, I will add multiplayer and I am also planning on developing my own chess engine. The goal of this project is to have fun and to get better programming skllis
+This is a developing project; it is a chess game whriten in python using the pygame module. In the future, I will add multiplayer and I am also planning on developing my own chess engine. The goal of this project is to have fun and to get better programming skllis.
