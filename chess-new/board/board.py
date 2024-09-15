@@ -44,9 +44,11 @@ class Board:
     def clear_marked_squares(self) -> None:
         self.__squares_to_mark = set()
 
-    def add_squares_to_mark(self, *squares: tuple[int, int]) -> None:
-        for i in squares:
-            self.__squares_to_mark.add(i)
+    def add_squares_to_mark(self, squares: list[tuple[int, int]]) -> None:
+        if squares is not None:
+            for i in squares:
+                if i is not None:
+                    self.__squares_to_mark.add(i)
 
     @property
     def size(self) -> tuple[int, int]:
@@ -177,22 +179,22 @@ class Board:
 
     def square_to_pos(self, square_pos: tuple[int, int]) -> tuple[int, int]:
         if self.__board_inverted:
-            row: int = self.invert(square_pos[0])
-            colum: int = self.invert(square_pos[1])
+            row: int = square_pos[0]
+            colum: int = square_pos[1]
             return self.top_left[0] + (self.__square_size[0] * row) - self.__square_size[0], (self.top_left[1] + (self.__square_size[1] * colum)) - self.__square_size[1]
         else:
             row: int = square_pos[0]
-            colum: int = square_pos[1]
+            colum: int = self.invert(square_pos[1]) - 1
             return self.top_left[0] + (self.__square_size[0] * row), self.top_left[1] + (self.__square_size[1] * colum)
 
     def pos_to_square(self, pos: tuple[int, int]) -> tuple[int, int]:
         cords_on_board = (pos[0] - self.top_left[0], pos[1] - self.top_left[1])
         if self.__board_inverted:
-            row = self.invert(int(cords_on_board[0] // self.__square_size[0]))
-            colum = self.invert(int(cords_on_board[1] // self.__square_size[1]))
-        else:
             row = int(cords_on_board[0] // self.__square_size[0]) + 1
             colum = int(cords_on_board[1] // self.__square_size[1]) + 1
+        else:
+            row = int(cords_on_board[0] // self.__square_size[0]) + 1
+            colum = self.invert(int(cords_on_board[1] // self.__square_size[1]))
         return row, colum
 
     def get_square_clicked(self) -> tuple[int, int] | None:
@@ -205,18 +207,19 @@ class Board:
                 return square[0] - 1, square[1] - 1
         return None
 
-    def mark_square(self, square: tuple[int, int]) -> None:
-        pos = self.square_to_pos(square)
-        pygame.draw.circle(
-            self.screen,
-            "#ff0000",
-            (pos[0] + self.__square_size[0] // 2, pos[1] + self.__square_size[1] // 2),
-            10
-        )
+    def mark_square(self, *squares: tuple[int, int]) -> None:
+        for square in squares:
+            pos = self.square_to_pos(square)
+            pygame.draw.circle(
+                self.screen,
+                "#ff0000",
+                (pos[0] + self.__square_size[0] // 2, pos[1] + self.__square_size[1] // 2),
+                10
+            )
 
     def mark_squares(self) -> None:
-        for square in self.__squares_to_mark:
-            self.mark_square(square)
+        self.mark_square(*self.squares_to_mark)
+
 
 
 if __name__ == "__main__":
