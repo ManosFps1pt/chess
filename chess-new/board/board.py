@@ -35,7 +35,7 @@ class Board:
             self.__board_inverted = val
 
     def flip_board(self):
-        self.__board_inverted ^= True # xor boolean operation : 0, 0 -> 0 | 0, 1 -> 1 | 1, 0 -> 1 | 1, 1 -> 0
+        self.__board_inverted ^= True  # xor boolean operation : 0, 0 -> 0 | 0, 1 -> 1 | 1, 0 -> 1 | 1, 1 -> 0
 
     @property
     def squares_to_mark(self) -> set[tuple[int, int]]:
@@ -153,38 +153,38 @@ class Board:
                 pygame.draw.rect(self.screen, self.colors[1],
                                  pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
 
-
         # draw letters
         for i in range(8):
             row_letter = self.index_to_row(i)
             font = pygame.font.SysFont("Calibri", 30)
             text_surface = font.render(row_letter, True, "#ffffff")
             pos = \
-            (
-                self.top_left[0] + (i * self.__square_size[0]),
-                self.top_left[1] + self.__size[1] + round(self.__square_size[1] * .1)
-            )
+                (
+                    self.top_left[0] + (i * self.__square_size[0]),
+                    self.top_left[1] + self.__size[1] + round(self.__square_size[1] * .1)
+                )
             self.screen.blit(text_surface, pos)
 
         # draw numbers
         for i in range(8):
             font = pygame.font.SysFont("Calibri", 30)
-            text_surface = font.render(str(self.invert(i)), True, "#ffffff")
+            text_surface = font.render(str(self.invert(self.colum_to_index(i))), True, "#ffffff")
             pos = self.top_left[0] - 30, (i * self.__square_size[1]) + 30 + self.__square_size[1]
             self.screen.blit(text_surface, pos)
 
     @staticmethod
     def invert(i: int) -> int:
-        return abs(8 - i)
+        return abs(7 - i)
 
     def square_to_pos(self, square_pos: tuple[int, int]) -> tuple[int, int]:
         if self.__board_inverted:
             row: int = square_pos[0]
             colum: int = square_pos[1]
-            return self.top_left[0] + (self.__square_size[0] * row) - self.__square_size[0], (self.top_left[1] + (self.__square_size[1] * colum)) - self.__square_size[1]
+            return self.top_left[0] + (self.__square_size[0] * row) - self.__square_size[0], (
+                    self.top_left[1] + (self.__square_size[1] * colum)) - self.__square_size[1]
         else:
             row: int = square_pos[0]
-            colum: int = self.invert(square_pos[1]) - 1
+            colum: int = self.invert(square_pos[1])
             return self.top_left[0] + (self.__square_size[0] * row), self.top_left[1] + (self.__square_size[1] * colum)
 
     def pos_to_square(self, pos: tuple[int, int]) -> tuple[int, int]:
@@ -204,10 +204,12 @@ class Board:
             if self.top_left[0] < pos[0] < self.top_left[0] + self.__size[0] and self.top_left[1] < pos[1] < \
                     self.top_left[1] + self.__size[1]:
                 square = self.pos_to_square(pos)
-                return square[0] - 1, square[1] - 1
+                return self.colum_to_index(square[0]), square[1]
         return None
 
-    def mark_square(self, *squares: tuple[int, int]) -> None:
+    def mark_square(self, squares: list[tuple[int, int]]) -> None:
+        if squares is None:
+            return None
         for square in squares:
             pos = self.square_to_pos(square)
             pygame.draw.circle(
@@ -218,8 +220,7 @@ class Board:
             )
 
     def mark_squares(self) -> None:
-        self.mark_square(*self.squares_to_mark)
-
+        self.mark_square(list(self.squares_to_mark))
 
 
 if __name__ == "__main__":
@@ -234,7 +235,8 @@ if __name__ == "__main__":
                 print("quit")
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(board.get_square_clicked())
+                click = board.get_square_clicked()
+                print(board.square_to_pos(click))
 
         pygame.display.set_caption(f"fps: {int(clock.get_fps())}")
 

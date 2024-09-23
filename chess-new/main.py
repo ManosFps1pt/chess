@@ -16,9 +16,7 @@ while run:
         if event.type == pygame.MOUSEBUTTONDOWN:
             chess.clear_marked_squares()
             square = chess.get_square_clicked()
-            print(f"click detected. Board square clicked, mouse pos: {pygame.mouse.get_pos()}, square: {square}, "
-                  f"to pos: {chess.square_to_pos(square)}")
-            chess.add_squares_to_mark(chess.rook_available(square, False))
+
     chess.mark_squares()
     pygame.display.update()
     clock.tick()
