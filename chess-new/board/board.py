@@ -10,7 +10,7 @@ class Board:
         self.colors: tuple[int | str, int | str] = "#aaaaaa", "#000000"
         self.top_left: tuple[int, int] = 100, 100
         self.outline_color = "#002200"
-        self.outline_thickness = 5
+        self.outline_thickness = 10
         self.__squares_to_mark: set[tuple[int, int]] = set()
         self.__square_size: tuple[int, int] = self.__size[0] // 8, self.__size[1] // 8
         self.index_row_dict: dict[int:str] = {
@@ -23,6 +23,7 @@ class Board:
             6: "G",
             7: "H"
         }
+
         self.__board_inverted: bool = False
 
     @property
@@ -214,7 +215,7 @@ class Board:
             pos = self.square_to_pos(square)
             pygame.draw.circle(
                 self.screen,
-                "#ff0000",
+                "#72777c",
                 (pos[0] + self.__square_size[0] // 2, pos[1] + self.__square_size[1] // 2),
                 10
             )

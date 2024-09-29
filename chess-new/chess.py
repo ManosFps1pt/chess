@@ -46,6 +46,7 @@ class Chess(Board, Piece):
                             self.square_size[0] - 5,
                             self.square_size[1] - 5
                         ),
+
                         (
                             self.square_size[0] // 2,
                             self.square_size[1] // 2
@@ -79,6 +80,8 @@ class Chess(Board, Piece):
         self.white_squares_reachable: set[tuple[int, int]] = set()
 
         self.black_squares_reachable: set[tuple[int, int]] = set()
+
+        self.selected_piece: Piece | None = None
 
     def get_friendly_pieces_pos(self, is_white: bool) -> list[tuple[int, int]]:
         pos_list: list[tuple[int, int]] = []
@@ -140,25 +143,67 @@ class Chess(Board, Piece):
                             and (pos[0], pos[1] + 2) not in enemy_list
                             and pos[1] == 1
                     ):
-                        moves_list.append((pos[0], pos[1] + 2))
+                        moves_list.append(
+                            (
+                                pos[0],
+                                pos[1] + 2
+                            )
+                        )
                 if (pos[0] + 1, pos[1] + 1) in enemy_list:
-                    moves_list.append((pos[0] + 1, pos[1] + 1))
+                    moves_list.append(
+                        (
+                            pos[0] + 1,
+                            pos[1] + 1
+                        )
+                    )
                 if (pos[0] - 1, pos[1] + 1) in enemy_list:
-                    moves_list.append((pos[0] - 1, pos[1] + 1))
+                    moves_list.append(
+                        (
+                            pos[0] - 1,
+                            pos[1] + 1
+                        )
+                    )
             else:
                 friendly_list = self.black_pieces
                 enemy_list = self.white_pieces
-                if (pos[0], pos[1] - 1) not in friendly_list and (pos[0], pos[1] - 1) not in enemy_list and pos[1] >= 1:
-                    moves_list.append((pos[0], pos[1] - 1))
+                if (
+                        (
+                            pos[0], pos[1] - 1
+                        ) not in friendly_list
+
+                        and (
+                            pos[0], pos[1] - 1
+                        ) not in enemy_list
+
+                        and pos[1] >= 1
+                ):
+                    moves_list.append(
+                        (
+                            pos[0],
+                            pos[1] - 1
+                        )
+                    )
                     if (
-                            (pos[0], pos[1] - 2) not in friendly_list
-                            and (pos[0], pos[1] - 2) not in enemy_list
+                            (
+                                pos[0], pos[1] - 2
+                            ) not in friendly_list
+                            and (
+                                pos[0], pos[1] - 2
+                            ) not in enemy_list
                             and pos[1] == 6
                     ):
+
                         moves_list.append((pos[0], pos[1] - 2))
-                if (pos[0] + 1, pos[1] - 1) in enemy_list:
+                if (
+                        (
+                            pos[0] + 1, pos[1] - 1
+                        ) in enemy_list
+                ):
                     moves_list.append((pos[0] + 1, pos[1] - 1))
-                if (pos[0] - 1, pos[1] - 1) in enemy_list:
+                if (
+                        (
+                            pos[0] - 1, pos[1] - 1
+                        ) in enemy_list):
                     moves_list.append((pos[0] - 1, pos[1] - 1))
             return moves_list
         else:
@@ -191,9 +236,15 @@ class Chess(Board, Piece):
             chain: int = 1
             path = True
             while path:
-                checking_square: tuple[int, int] = pos[0] + (chain * direction[0]), pos[1] + (chain * direction[1])
-                if checking_square not in friendly_list and (
-                        0 <= checking_square[0] <= 7 and 0 <= checking_square[1] <= 7):
+                checking_square: tuple[int, int] = (
+                    pos[0] + chain * direction[0],
+                    pos[1] + chain * direction[1]
+                )
+                if (
+                        checking_square not in friendly_list
+                        and 0 <= checking_square[0] <= 7
+                        and 0 <= checking_square[1] <= 7
+                ):
                     moves_list.append(checking_square)
                     chain += 1
                     if checking_square in enemy_list:
@@ -230,8 +281,11 @@ class Chess(Board, Piece):
             path = True
             while path:
                 checking_square: tuple[int, int] = pos[0] + (chain * direction[0]), pos[1] + (chain * direction[1])
-                if checking_square not in friendly_list and (
-                        0 <= checking_square[0] <= 7 and 0 <= checking_square[1] <= 7):
+                if (
+                        checking_square not in friendly_list and
+                        0 <= checking_square[0] <= 7
+                        and 0 <= checking_square[1] <= 7
+                ):
                     moves_list.append(checking_square)
                     chain += 1
                     if checking_square in enemy_list:
@@ -320,7 +374,6 @@ class Chess(Board, Piece):
         """
         Handles the mouse click event to determine the clicked square and updates the game state accordingly.
         """
-        moves = []
         mouse_clicked: bool = pygame.mouse.get_pressed()[0]
         square_clicked = self.get_square_clicked()
         if not mouse_clicked:
@@ -377,7 +430,7 @@ def main():
                 square_clicked = chess.get_square_clicked()
         pygame.display.set_caption(f"fps: {int(clock.get_fps())}")
 
-        c.screen.fill("#000000")
+        c.screen.fill("#333333")
         chess.draw_board()
         chess.draw_pieces()
         chess.mark_square(chess.manage_click())
