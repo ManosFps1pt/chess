@@ -2,12 +2,11 @@ import pygame
 from board.board import Board
 from constants import *
 from chess import Chess
-
 pygame.init()
 chess = Chess(screen)
 chess.board_inverted = False
 while run:
-    screen.fill("#000000")
+    screen.fill("#ff625f")
     chess.draw_board()
     chess.draw_pieces()
     for event in pygame.event.get():
