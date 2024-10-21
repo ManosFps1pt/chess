@@ -78,10 +78,11 @@ class Chess(Board, Piece):
             ]
 
         self.white_squares_reachable: set[tuple[int, int]] = set()
-
         self.black_squares_reachable: set[tuple[int, int]] = set()
-
         self.selected_piece: Piece | None = None
+        self.selected_piece_reachable: set[tuple[int, int]] = set()
+        self.refresh = False
+        self.white_playing: bool = True
 
     def get_friendly_pieces_pos(self, is_white: bool) -> list[tuple[int, int]]:
         pos_list: list[tuple[int, int]] = []
@@ -131,83 +132,82 @@ class Chess(Board, Piece):
         :param is_white: Whether the pawn is white or black.
         :return: A list of available moves for the pawn.
         """
-        if pos is not None:
-            moves_list = []
-            if is_white:
-                friendly_list = self.get_friendly_pieces_pos(is_white)
-                enemy_list = self.get_enemy_pieces_pos(is_white)
-                if (pos[0], pos[1] + 1) not in friendly_list and (pos[0], pos[1] + 1) not in enemy_list and pos[1] <= 6:
-                    moves_list.append((pos[0], pos[1] + 1))
-                    if (
-                            (pos[0], pos[1] + 2) not in friendly_list
-                            and (pos[0], pos[1] + 2) not in enemy_list
-                            and pos[1] == 1
-                    ):
-                        moves_list.append(
-                            (
-                                pos[0],
-                                pos[1] + 2
-                            )
-                        )
-                if (pos[0] + 1, pos[1] + 1) in enemy_list:
-                    moves_list.append(
-                        (
-                            pos[0] + 1,
-                            pos[1] + 1
-                        )
-                    )
-                if (pos[0] - 1, pos[1] + 1) in enemy_list:
-                    moves_list.append(
-                        (
-                            pos[0] - 1,
-                            pos[1] + 1
-                        )
-                    )
-            else:
-                friendly_list = self.black_pieces
-                enemy_list = self.white_pieces
+        if pos is None:
+            return None
+        moves_list = []
+        if is_white:
+            friendly_list = self.get_friendly_pieces_pos(is_white)
+            enemy_list = self.get_enemy_pieces_pos(is_white)
+            if (pos[0], pos[1] + 1) not in friendly_list and (pos[0], pos[1] + 1) not in enemy_list and pos[1] <= 6:
+                moves_list.append((pos[0], pos[1] + 1))
                 if (
-                        (
-                            pos[0], pos[1] - 1
-                        ) not in friendly_list
-
-                        and (
-                            pos[0], pos[1] - 1
-                        ) not in enemy_list
-
-                        and pos[1] >= 1
+                        (pos[0], pos[1] + 2) not in friendly_list
+                        and (pos[0], pos[1] + 2) not in enemy_list
+                        and pos[1] == 1
                 ):
                     moves_list.append(
                         (
                             pos[0],
-                            pos[1] - 1
+                            pos[1] + 2
                         )
                     )
-                    if (
-                            (
-                                pos[0], pos[1] - 2
-                            ) not in friendly_list
-                            and (
-                                pos[0], pos[1] - 2
-                            ) not in enemy_list
-                            and pos[1] == 6
-                    ):
-
-                        moves_list.append((pos[0], pos[1] - 2))
-                if (
-                        (
-                            pos[0] + 1, pos[1] - 1
-                        ) in enemy_list
-                ):
-                    moves_list.append((pos[0] + 1, pos[1] - 1))
-                if (
-                        (
-                            pos[0] - 1, pos[1] - 1
-                        ) in enemy_list):
-                    moves_list.append((pos[0] - 1, pos[1] - 1))
-            return moves_list
+            if (pos[0] + 1, pos[1] + 1) in enemy_list:
+                moves_list.append(
+                    (
+                        pos[0] + 1,
+                        pos[1] + 1
+                    )
+                )
+            if (pos[0] - 1, pos[1] + 1) in enemy_list:
+                moves_list.append(
+                    (
+                        pos[0] - 1,
+                        pos[1] + 1
+                    )
+                )
         else:
-            return None
+            friendly_list = self.get_friendly_pieces_pos(is_white)
+            enemy_list = self.get_enemy_pieces_pos(is_white)
+            if (
+                    (
+                        pos[0], pos[1] - 1
+                    ) not in friendly_list
+                    and (
+                        pos[0], pos[1] - 1
+                    ) not in enemy_list
+
+                    and pos[1] >= 1
+            ):
+                moves_list.append(
+                    (
+                        pos[0],
+                        pos[1] - 1
+                    )
+                )
+                if (
+                        (
+                                pos[0], pos[1] - 2
+                        ) not in friendly_list
+                        and
+                        (
+                                pos[0], pos[1] - 2
+                        ) not in enemy_list
+                        and pos[1] == 6
+                ):
+                    moves_list.append((pos[0], pos[1] - 2))
+            if (
+                    (
+                            pos[0] + 1, pos[1] - 1
+                    ) in enemy_list
+            ):
+                moves_list.append((pos[0] + 1, pos[1] - 1))
+            if (
+                    (
+                            pos[0] - 1, pos[1] - 1
+                    ) in enemy_list
+            ):
+                moves_list.append((pos[0] - 1, pos[1] - 1))
+        return moves_list
 
     def bishop_available(self, pos: tuple[int, int], is_white: bool) -> list[tuple[int, int]]:
         """
@@ -370,36 +370,14 @@ class Chess(Board, Piece):
 
         return moves_list
 
-    def manage_click(self) -> list[tuple[int, int]] | None:
+    def valid_moves(self, piece: Piece) -> list[tuple[int, int]]:
         """
-        Handles the mouse click event to determine the clicked square and updates the game state accordingly.
+        Returns the valid moves for a given piece.
         """
-        mouse_clicked: bool = pygame.mouse.get_pressed()[0]
-        square_clicked = self.get_square_clicked()
-        if not mouse_clicked:
-            return None
-        if square_clicked is None:
-            return None
-        pos = pygame.mouse.get_pos()
-        if square_clicked is None:
-            return None
-
-        piece = None
-        for idx, i in enumerate(self.white_pieces):
-            if i.square_pos == square_clicked:
-                piece = i
-
-        for idx, i in enumerate(self.black_pieces):
-            if i.square_pos == square_clicked:
-                piece = i
-
-        if piece is None:
-            return None
-
-        if piece.color == "b":
-            is_white: bool = False
+        if piece.color == "w":
+            is_white = True
         else:
-            is_white: bool = True
+            is_white = False
 
         match piece.type:
             case "p":
@@ -417,24 +395,122 @@ class Chess(Board, Piece):
             case _:
                 pass
 
+    def move_piece(self, selected_piece: Piece, pos: tuple[int, int]) -> None:
+        if selected_piece is None:
+            return None
+        if selected_piece.color == "b" and self.white_playing:
+            return None
+        elif selected_piece.color == "w" and not self.white_playing:
+            return None
+        piece_id = selected_piece.square_pos
+        color = selected_piece.color
+        piece: Piece | None = None
+        for i in self.white_pieces:
+            if piece is not None:
+                break
+            if i.square_pos == piece_id:
+                piece = i
+
+        for i in self.black_pieces:
+            if piece is not None:
+                break
+            if i.square_pos == piece_id:
+                piece = i
+
+        if piece is None:
+            return None
+
+        if pos not in self.valid_moves(piece):
+            return None
+
+        if color == "w":
+            for i in self.black_pieces:
+                if i.square_pos == pos:
+                    self.black_pieces.remove(i)
+                    break
+        else:
+            for i in self.white_pieces:
+                if i.square_pos == pos:
+                    self.white_pieces.remove(i)
+                    break
+
+        piece.square_pos = pos
+        self.white_playing ^= True
+
+    def manage_click(self) -> None:
+        """
+        Handles the mouse click event to determine the clicked square and updates the game state accordingly.
+        """
+        mouse_clicked: bool = pygame.mouse.get_pressed()[0]
+        new_click = pygame.mouse.get_just_pressed()[0]
+        square_clicked = self.get_square_clicked()
+        if not new_click:
+            return None
+        if square_clicked is None:
+            self.selected_piece = None
+            return None
+        # pos = pygame.mouse.get_pos()
+
+        piece: Piece | None = None
+        for idx, i in enumerate(self.white_pieces):
+            if i.square_pos == square_clicked:
+                piece = i
+
+        for idx, i in enumerate(self.black_pieces):
+            if i.square_pos == square_clicked:
+                piece = i
+
+        # if piece is None:
+        #     return None
+        if self.selected_piece is None:
+            self.selected_piece = piece
+            return None
+        if square_clicked in self.valid_moves(self.selected_piece):
+            self.move_piece(self.selected_piece, square_clicked)
+            self.selected_piece = None
+        else:
+            self.selected_piece = None
+
+        return None
+        # if piece.color == "b":
+        #     is_white: bool = False
+        # else:
+        #     is_white: bool = True
+
+        # return self.valid_moves(piece)
+
+    def playing(self):
+        """
+        The main game loop.
+        """
+        click = self.manage_click()
+        # if click is None:
+        #     return None
+        if self.selected_piece is None:
+            return None
+        self.clear_marked_squares()
+        self.mark_square(self.valid_moves(self.selected_piece))
+
 
 def main():
     clock = pygame.time.Clock()
     run: bool = True
     chess = Chess(c.screen)
+    # chess.flip_board()
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 square_clicked = chess.get_square_clicked()
-        pygame.display.set_caption(f"fps: {int(clock.get_fps())}")
+        pygame.display.set_caption(f"fps: {int(clock.get_fps())}, {chess.selected_piece}, {chess.white_playing=}")
 
-        c.screen.fill("#333333")
+        c.screen.fill("#ff625f")
         chess.draw_board()
         chess.draw_pieces()
-        chess.mark_square(chess.manage_click())
-        chess.mark_squares()
+        # chess.add_squares_to_mark(chess.manage_click())
+        # chess.mark_squares()
+        chess.playing()
         pygame.display.update()
         clock.tick()
 
