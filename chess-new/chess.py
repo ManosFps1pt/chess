@@ -83,6 +83,7 @@ class Chess(Board, Piece):
         self.selected_piece_reachable: set[tuple[int, int]] = set()
         self.refresh = False
         self.white_playing: bool = True
+        self.king_moved: bool = False
 
     def get_friendly_pieces_pos(self, is_white: bool) -> list[tuple[int, int]]:
         pos_list: list[tuple[int, int]] = []
@@ -186,11 +187,11 @@ class Chess(Board, Piece):
                 )
                 if (
                         (
-                                pos[0], pos[1] - 2
+                            pos[0], pos[1] - 2
                         ) not in friendly_list
                         and
                         (
-                                pos[0], pos[1] - 2
+                           pos[0], pos[1] - 2
                         ) not in enemy_list
                         and pos[1] == 6
                 ):
@@ -503,11 +504,16 @@ def main():
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 square_clicked = chess.get_square_clicked()
+            if event.type == pygame.KEYDOWN:
+                print("keydown")
+                if event.key == pygame.K_SPACE:
+                    chess.flip_board()
         pygame.display.set_caption(f"fps: {int(clock.get_fps())}, {chess.selected_piece}, {chess.white_playing=}")
 
         c.screen.fill("#ff625f")
         chess.draw_board()
         chess.draw_pieces()
+        chess.draw_letters()
         # chess.add_squares_to_mark(chess.manage_click())
         # chess.mark_squares()
         chess.playing()

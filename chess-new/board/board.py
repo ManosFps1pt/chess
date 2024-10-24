@@ -154,23 +154,34 @@ class Board:
                 pygame.draw.rect(self.screen, self.colors[1],
                                  pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
 
+    def draw_letters(self):
         # draw letters
         for i in range(8):
-            row_letter = self.index_to_row(i)
-            font = pygame.font.SysFont("Calibri", 30)
-            text_surface = font.render(row_letter, True, "#ffffff")
-            pos = \
-                (
-                    self.top_left[0] + (i * self.__square_size[0]),
-                    self.top_left[1] + self.__size[1] + round(self.__square_size[1] * .1)
-                )
+            row = i
+            font = pygame.font.SysFont("", 20)
+            if self.__board_inverted:
+                pos = list(self.square_to_pos((row, 7)))
+                row_letter = self.index_to_row(self.invert(i))
+                pos[0] += self.__square_size[0] * .8
+                pos[1] += self.square_size[1] * .8
+            else:
+                row_letter = self.index_to_row(i)
+                pos = list(self.square_to_pos((row, 0)))
+                pos[0] += self.__square_size[0] * .8
+                pos[1] += self.square_size[1] * .8
+            text_surface = font.render(row_letter.lower(), True, "#ffffff")
             self.screen.blit(text_surface, pos)
 
         # draw numbers
         for i in range(8):
-            font = pygame.font.SysFont("Calibri", 30)
-            text_surface = font.render(str(self.invert(self.colum_to_index(i))), True, "#ffffff")
-            pos = self.top_left[0] - 30, (i * self.__square_size[1]) + 30 + self.__square_size[1]
+            font = pygame.font.SysFont("Calibri", 20)
+            text_surface = font.render(str(self.colum_to_index(i + 2)), True, "#ffffff")
+            pos = list(self.square_to_pos((0, i)))
+            # if self.__board_inverted:
+            #     # pos[1] += self.__square_size[1] * .8
+            #     pass
+            # else:
+            #     pass
             self.screen.blit(text_surface, pos)
 
     @staticmethod
@@ -181,8 +192,8 @@ class Board:
         if self.__board_inverted:
             row: int = square_pos[0]
             colum: int = square_pos[1]
-            return self.top_left[0] + (self.__square_size[0] * row) - self.__square_size[0], (
-                    self.top_left[1] + (self.__square_size[1] * colum)) - self.__square_size[1]
+            return self.top_left[0] + (self.__square_size[0] * row), (
+                    self.top_left[1] + (self.__square_size[1] * colum))
         else:
             row: int = square_pos[0]
             colum: int = self.invert(square_pos[1])
