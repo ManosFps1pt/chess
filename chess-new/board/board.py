@@ -32,11 +32,11 @@ class Board:
 
     @board_inverted.setter
     def board_inverted(self, val: bool):
-        if type(val) == type(bool):
+        if isinstance(val, bool):
             self.__board_inverted = val
 
     def flip_board(self):
-        self.__board_inverted ^= True  # xor boolean operation : 0, 0 -> 0 | 0, 1 -> 1 | 1, 0 -> 1 | 1, 1 -> 0
+        self.__board_inverted ^= True  # xor boolean operation : 0 ^ 0 -> 0 ### 0 ^ 1 -> 1 ### 1 ^ 0 -> 1 ### 1 ^ 1 -> 0
 
     @property
     def squares_to_mark(self) -> set[tuple[int, int]]:
@@ -107,52 +107,26 @@ class Board:
             )
         )
 
-        # color a (white)
-        if self.__board_inverted:
-            pygame.draw.rect(
-                self.screen,
-                self.colors[1],
-                pygame.Rect(
-                    self.top_left[0],
-                    self.top_left[1],
-                    self.__size[0],
-                    self.__size[1]
-                )
+        pygame.draw.rect(
+            self.screen,
+            self.colors[0],
+            pygame.Rect(
+                self.top_left[0],
+                self.top_left[1],
+                self.__size[0],
+                self.__size[1]
             )
-        else:
-            pygame.draw.rect(
-                self.screen,
-                self.colors[0],
-                pygame.Rect(
-                    self.top_left[0],
-                    self.top_left[1],
-                    self.__size[0],
-                    self.__size[1]
-                )
-            )
+        )
 
-        # color b (black)
-        if self.__board_inverted:
-            for i in range(32):
-                colum = i // 4
-                row = (i % 4) * 2
-                if colum % 2 == 0:
-                    row += 1
-                x = (row * self.__square_size[0]) + self.top_left[0]
-                y = (colum * self.__square_size[1]) + self.top_left[1]
-                pygame.draw.rect(self.screen, self.colors[0],
-                                 pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
-
-        else:
-            for i in range(32):
-                colum = i // 4
-                row = (i % 4) * 2
-                if colum % 2 == 0:
-                    row += 1
-                x = (row * self.__square_size[0]) + self.top_left[0]
-                y = (colum * self.__square_size[1]) + self.top_left[1]
-                pygame.draw.rect(self.screen, self.colors[1],
-                                 pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
+        for i in range(32):
+            colum = i // 4
+            row = (i % 4) * 2
+            if colum % 2 == 0:
+                row += 1
+            x = (row * self.__square_size[0]) + self.top_left[0]
+            y = (colum * self.__square_size[1]) + self.top_left[1]
+            pygame.draw.rect(self.screen, self.colors[1],
+                             pygame.Rect(x, y, self.__square_size[0], self.__square_size[1]))
 
     def draw_letters(self):
         # draw letters
@@ -188,22 +162,29 @@ class Board:
     def invert(i: int) -> int:
         return abs(7 - i)
 
-    def square_to_pos(self, square_pos: tuple[int, int]) -> tuple[int, int]:
+    def square_to_pos(self, square_pos: tuple[int, int], piece: bool = False) -> tuple[int, int]:
         if self.__board_inverted:
             row: int = square_pos[0]
             colum: int = square_pos[1]
-            return self.top_left[0] + (self.__square_size[0] * row), (
-                    self.top_left[1] + (self.__square_size[1] * colum))
+            return (
+                (
+                    self.top_left[0] + self.__square_size[0] * row
+                ),
+                
+                (
+                    self.top_left[1] + self.__square_size[1] * colum
+                )
+            )
         else:
             row: int = square_pos[0]
             colum: int = self.invert(square_pos[1])
             return self.top_left[0] + (self.__square_size[0] * row), self.top_left[1] + (self.__square_size[1] * colum)
 
     def pos_to_square(self, pos: tuple[int, int]) -> tuple[int, int]:
-        cords_on_board = (pos[0] - self.top_left[0], pos[1] - self.top_left[1])
+        cords_on_board = pos[0] - self.top_left[0], pos[1] - self.top_left[1]
         if self.__board_inverted:
             row = int(cords_on_board[0] // self.__square_size[0]) + 1
-            colum = int(cords_on_board[1] // self.__square_size[1]) + 1
+            colum = int(cords_on_board[1] // self.__square_size[1])
         else:
             row = int(cords_on_board[0] // self.__square_size[0]) + 1
             colum = self.invert(int(cords_on_board[1] // self.__square_size[1]))
@@ -233,6 +214,9 @@ class Board:
 
     def mark_squares(self) -> None:
         self.mark_square(list(self.squares_to_mark))
+
+    def update(self):
+        ...
 
 
 if __name__ == "__main__":

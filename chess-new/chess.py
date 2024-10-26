@@ -1,13 +1,26 @@
 from typing import List, Tuple
-from dataclasses import dataclass, field
 import pygame
+from enum import Enum
+from dataclasses import dataclass, field
 from board.board import Board
 import constants as c
 
 pygame.init()
 
 
-@dataclass(order=True)
+class Type(Enum):
+    ROOK: str = "r"
+    KNIGHT: str = "kn"
+    BISHOP: str = "b"
+    KING: str = "k"
+    QUEEN: str = "q"
+    PAWN: str = "p"
+
+    WHITE: str = "w"
+    BLACK: str = "b"
+
+
+@dataclass(order=False)
 class Piece:
     color: str
     type: str
@@ -171,11 +184,11 @@ class Chess(Board, Piece):
             enemy_list = self.get_enemy_pieces_pos(is_white)
             if (
                     (
-                        pos[0], pos[1] - 1
+                            pos[0], pos[1] - 1
                     ) not in friendly_list
                     and (
-                        pos[0], pos[1] - 1
-                    ) not in enemy_list
+                    pos[0], pos[1] - 1
+            ) not in enemy_list
 
                     and pos[1] >= 1
             ):
@@ -187,11 +200,11 @@ class Chess(Board, Piece):
                 )
                 if (
                         (
-                            pos[0], pos[1] - 2
+                                pos[0], pos[1] - 2
                         ) not in friendly_list
                         and
                         (
-                           pos[0], pos[1] - 2
+                                pos[0], pos[1] - 2
                         ) not in enemy_list
                         and pos[1] == 6
                 ):
@@ -444,13 +457,13 @@ class Chess(Board, Piece):
         """
         mouse_clicked: bool = pygame.mouse.get_pressed()[0]
         new_click = pygame.mouse.get_just_pressed()[0]
-        square_clicked = self.get_square_clicked()
         if not new_click:
             return None
+        square_clicked = self.get_square_clicked()
+        print(square_clicked)
         if square_clicked is None:
             self.selected_piece = None
             return None
-        # pos = pygame.mouse.get_pos()
 
         piece: Piece | None = None
         for idx, i in enumerate(self.white_pieces):
@@ -484,7 +497,7 @@ class Chess(Board, Piece):
         """
         The main game loop.
         """
-        click = self.manage_click()
+        self.manage_click()
         # if click is None:
         #     return None
         if self.selected_piece is None:
@@ -497,7 +510,6 @@ def main():
     clock = pygame.time.Clock()
     run: bool = True
     chess = Chess(c.screen)
-    # chess.flip_board()
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
